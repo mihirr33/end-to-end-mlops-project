@@ -1,7 +1,6 @@
 import os
 import sys
 import joblib
-
 import mlflow
 import mlflow.sklearn
 
@@ -9,11 +8,18 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 from src.components.data_transformation import DataTransformation
+from src.config.configuration import Configuration
 from src.logger import logger
 from src.exception import CustomException
 
 
 class ModelTrainer:
+
+    def __init__(self):
+
+        config = Configuration()
+
+        self.model_config = config.get_model_trainer_config()
 
     def initiate_model_training(self):
 
@@ -21,8 +27,8 @@ class ModelTrainer:
 
             transformer = DataTransformation()
 
-            X_train, X_test, y_train, y_test = transformer.initiate_data_transformation(
-                "artifacts/raw_data.csv"
+            X_train, X_test, y_train, y_test = (
+                transformer.initiate_data_transformation()
             )
 
             with mlflow.start_run():
@@ -45,12 +51,21 @@ class ModelTrainer:
                     name="model"
                 )
 
-                os.makedirs("models", exist_ok=True)
+                os.makedirs(
+                    self.model_config.model_dir,
+                    exist_ok=True
+                )
 
-                joblib.dump(model, "models/model.pkl")
+                model_path = os.path.join(
+                    self.model_config.model_dir,
+                    self.model_config.model_name
+                )
+
+                joblib.dump(model, model_path)
 
                 print(f"\nAccuracy : {accuracy:.4f}")
-                print("\nModel Saved Successfully")
+
+                print(f"\nModel Saved : {model_path}")
 
                 logger.info(f"Accuracy : {accuracy}")
 
