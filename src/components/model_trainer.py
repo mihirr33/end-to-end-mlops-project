@@ -2,6 +2,9 @@ import os
 import sys
 import joblib
 
+import mlflow
+import mlflow.sklearn
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
@@ -22,25 +25,34 @@ class ModelTrainer:
                 "artifacts/raw_data.csv"
             )
 
-            model = LogisticRegression(max_iter=1000)
+            with mlflow.start_run():
 
-            model.fit(X_train, y_train)
+                model = LogisticRegression(max_iter=1000)
 
-            prediction = model.predict(X_test)
+                model.fit(X_train, y_train)
 
-            accuracy = accuracy_score(y_test, prediction)
+                prediction = model.predict(X_test)
 
-            print(f"\nModel Accuracy : {accuracy:.4f}")
+                accuracy = accuracy_score(y_test, prediction)
 
-            os.makedirs("models", exist_ok=True)
+                mlflow.log_param("model", "LogisticRegression")
+                mlflow.log_param("max_iter", 1000)
 
-            joblib.dump(model, "models/model.pkl")
+                mlflow.log_metric("accuracy", accuracy)
 
-            logger.info("Model Training Completed")
+                mlflow.sklearn.log_model(
+                    sk_model=model,
+                    name="model"
+                )
 
-            logger.info(f"Accuracy : {accuracy}")
+                os.makedirs("models", exist_ok=True)
 
-            print("\nModel Saved Successfully")
+                joblib.dump(model, "models/model.pkl")
+
+                print(f"\nAccuracy : {accuracy:.4f}")
+                print("\nModel Saved Successfully")
+
+                logger.info(f"Accuracy : {accuracy}")
 
         except Exception as e:
             raise CustomException(e, sys)
