@@ -1,0 +1,4 @@
+[2026-06-30 19:08:34,841] INFO - Dataset Loaded Successfully
+[2026-06-30 19:08:34,892] INFO - Data Transformation Completed
+[2026-06-30 19:08:36,428] INFO - Model Training Completed
+[2026-06-30 19:08:36,428] INFO - Accuracy : 0.8218594748048261
