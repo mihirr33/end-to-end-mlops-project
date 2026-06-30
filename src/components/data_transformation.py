@@ -5,48 +5,52 @@ from sklearn.model_selection import train_test_split
 
 from src.logger import logger
 from src.exception import CustomException
+from src.config.configuration import Configuration
 
 
 class DataTransformation:
 
-    def initiate_data_transformation(self, file_path):
+    def __init__(self):
+
+        config = Configuration()
+
+        self.ingestion_config = config.get_data_ingestion_config()
+        self.training_config = config.get_training_config()
+
+    def initiate_data_transformation(self):
 
         try:
+
+            file_path = os.path.join(
+                self.ingestion_config.artifact_dir,
+                self.ingestion_config.artifact_file
+            )
 
             df = pd.read_csv(file_path)
 
             logger.info("Dataset Loaded Successfully")
 
-            # TotalCharges ko numeric banao
             df["TotalCharges"] = pd.to_numeric(
                 df["TotalCharges"],
                 errors="coerce"
             )
 
-            # Missing Values Fill
             df.fillna(0, inplace=True)
 
-            # Target Encoding
             df["Churn"] = df["Churn"].map(
                 {"Yes": 1, "No": 0}
             )
 
-            X = df.drop(
-                columns=["customerID", "Churn"]
-            )
-
+            X = df.drop(columns=["customerID", "Churn"])
             y = df["Churn"]
 
-            X = pd.get_dummies(
-                X,
-                drop_first=True
-            )
+            X = pd.get_dummies(X, drop_first=True)
 
             X_train, X_test, y_train, y_test = train_test_split(
                 X,
                 y,
-                test_size=0.2,
-                random_state=42
+                test_size=self.training_config.test_size,
+                random_state=self.training_config.random_state
             )
 
             print("Train Shape :", X_train.shape)
@@ -54,12 +58,7 @@ class DataTransformation:
 
             logger.info("Data Transformation Completed")
 
-            return (
-                X_train,
-                X_test,
-                y_train,
-                y_test
-            )
+            return X_train, X_test, y_train, y_test
 
         except Exception as e:
             raise CustomException(e, sys)
