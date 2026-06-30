@@ -1,5 +1,5 @@
 from src.components.data_validation import DataValidation
 
-obj = DataValidation()
+validator = DataValidation()
 
-obj.validate_data("artifacts/raw_data.csv")
+validator.validate_data()
