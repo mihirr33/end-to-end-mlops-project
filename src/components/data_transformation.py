@@ -1,3 +1,10 @@
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+import joblib
+
+
 import os
 import sys
 import pandas as pd
@@ -43,6 +50,12 @@ class DataTransformation:
 
             X = df.drop(columns=["customerID", "Churn"])
             y = df["Churn"]
+            # Separate numerical and categorical columns
+            numerical_columns = X.select_dtypes(exclude="object").columns
+
+            categorical_columns = X.select_dtypes(include="object").columns
+
+            
 
             X = pd.get_dummies(X, drop_first=True)
 
