@@ -1,29 +1,46 @@
 from fastapi import FastAPI
-import pandas as pd
+from fastapi.responses import Response
+from prometheus_client import Counter, generate_latest
 
-from src.pipeline.prediction_pipeline import PredictionPipeline
+app = FastAPI(
+    title="Customer Churn Prediction API",
+    version="1.0"
+)
 
-app = FastAPI()
+# Prometheus Counter
+REQUEST_COUNT = Counter(
+    "request_count",
+    "Total API Requests"
+)
 
 
 @app.get("/")
 def home():
+    REQUEST_COUNT.inc()
     return {
         "message": "Welcome to Telco Customer Churn Prediction API"
     }
 
 
-@app.post("/predict")
-def predict(data: dict):
-
-    df = pd.DataFrame([data])
-
-    pipeline = PredictionPipeline()
-
-    prediction = pipeline.predict(df)
-
-    result = "Churn" if prediction[0] == 1 else "No Churn"
-
+@app.get("/health")
+def health():
     return {
-        "prediction": result
+        "status": "healthy",
+        "model": "loaded"
+    }
+
+
+@app.get("/metrics")
+def metrics():
+    return Response(
+        generate_latest(),
+        media_type="text/plain"
+    )
+
+
+@app.post("/predict")
+def predict():
+    # Yahan tumhara existing prediction code rahega
+    return {
+        "prediction": "Add your prediction logic here"
     }
