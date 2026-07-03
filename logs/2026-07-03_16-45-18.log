@@ -1,0 +1,10 @@
+[2026-07-03 16:45:49,439] INFO - ========== Training Pipeline Started ==========
+[2026-07-03 16:45:49,487] INFO - Data Ingestion Completed Successfully
+[2026-07-03 16:45:49,575] INFO - Dataset Shape: (7043, 21)
+[2026-07-03 16:45:49,576] INFO - Data Validation Successful
+[2026-07-03 16:45:49,646] INFO - Dataset Loaded Successfully
+[2026-07-03 16:45:49,722] INFO - Data Transformation Completed
+[2026-07-03 16:45:49,780] INFO - Dataset Loaded Successfully
+[2026-07-03 16:45:49,829] INFO - Data Transformation Completed
+[2026-07-03 16:46:39,553] INFO - Accuracy : 0.8218594748048261
+[2026-07-03 16:46:39,576] INFO - ========== Training Pipeline Completed ==========
