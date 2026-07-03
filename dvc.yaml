@@ -1,0 +1,8 @@
+stages:
+  train:
+    cmd: python -m src.pipeline.training_pipeline
+    deps:
+      - src/pipeline/training_pipeline.py
+      - data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv
+    outs:
+      - models/model.pkl
