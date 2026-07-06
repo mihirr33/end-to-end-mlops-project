@@ -1,0 +1,11 @@
+[2026-07-06 16:09:32,015] INFO - ========== Training Pipeline Started ==========
+[2026-07-06 16:09:32,015] INFO - OpenLineageClient will use `http` transport
+[2026-07-06 16:09:35,407] INFO - Data Ingestion Completed Successfully
+[2026-07-06 16:09:35,494] INFO - Dataset Shape: (7043, 21)
+[2026-07-06 16:09:35,495] INFO - Data Validation Successful
+[2026-07-06 16:09:35,588] INFO - Dataset Loaded Successfully
+[2026-07-06 16:09:35,691] INFO - Data Transformation Completed
+[2026-07-06 16:09:35,754] INFO - Dataset Loaded Successfully
+[2026-07-06 16:09:35,794] INFO - Data Transformation Completed
+[2026-07-06 16:10:17,381] INFO - Accuracy : 0.8218594748048261
+[2026-07-06 16:10:18,111] INFO - ========== Training Pipeline Completed ==========

@@ -63,6 +63,16 @@ class ModelTrainer:
 
                 joblib.dump(model, model_path)
 
+                # Save feature names
+                feature_path = os.path.join(
+                self.model_config.model_dir,
+                "feature_names.pkl"
+                )
+
+                joblib.dump(list(X_train.columns), feature_path)
+
+                print(f"Feature Names Saved : {feature_path}")
+
                 print(f"\nAccuracy : {accuracy:.4f}")
 
                 print(f"\nModel Saved : {model_path}")
