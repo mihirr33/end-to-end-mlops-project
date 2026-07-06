@@ -1,0 +1,12 @@
+[2026-07-04 15:29:04,626] INFO - ========== Training Pipeline Started ==========
+[2026-07-04 15:29:04,628] INFO - OpenLineageClient will use `http` transport
+[2026-07-04 15:29:09,651] WARNING - Retrying (Retry(total=4, connect=5, read=4, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPConnectionPool(host='localhost', port=5000): Read timed out. (read timeout=5.0)")': /api/v1/lineage
+[2026-07-04 15:29:15,506] INFO - Data Ingestion Completed Successfully
+[2026-07-04 15:29:16,600] INFO - Dataset Shape: (7043, 21)
+[2026-07-04 15:29:16,601] INFO - Data Validation Successful
+[2026-07-04 15:29:17,196] INFO - Dataset Loaded Successfully
+[2026-07-04 15:29:17,644] INFO - Data Transformation Completed
+[2026-07-04 15:29:17,789] INFO - Dataset Loaded Successfully
+[2026-07-04 15:29:17,929] INFO - Data Transformation Completed
+[2026-07-04 15:30:30,961] INFO - Accuracy : 0.8218594748048261
+[2026-07-04 15:30:31,560] INFO - ========== Training Pipeline Completed ==========

@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: churn-mlops
+  namespace: argocd
+
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/mihirr00051/end-to-end-mlops-assignment.git
+    targetRevision: main
+    path: kubernetes
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
