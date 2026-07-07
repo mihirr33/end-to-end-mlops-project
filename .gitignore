@@ -5,9 +5,10 @@ __pycache__/
 
 models/
 mlruns/
+/node_modules
 
 .env
 
 .ipynb_checkpoints/
 
-.DS_Store
+.DS_Store   

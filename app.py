@@ -1,9 +1,9 @@
+import time
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from fastapi.responses import Response
 from prometheus_client import Counter, generate_latest
 from pydantic import BaseModel
-
 from src.pipeline.prediction_pipeline import PredictionPipeline
 
 app = FastAPI(
@@ -80,12 +80,49 @@ def predict(data: ChurnInput):
 
     REQUEST_COUNT.inc()
 
+    start_time = time.time()
+
     pipeline = PredictionPipeline()
 
-    prediction = pipeline.predict(data.model_dump())
+    result_data = pipeline.predict(data.model_dump())
+
+    prediction = result_data["prediction"]
+
+    confidence = result_data["confidence"]
 
     result = "Churn" if prediction == 1 else "No Churn"
 
+    # Dummy confidence (next step me model probability use karenge)
+    confidence = 94.73 if result == "No Churn" else 87.42
+
+    # Risk Level
+    risk = "LOW" if result == "No Churn" else "HIGH"
+
+    # Recommendation
+    recommendation = (
+        "Customer is likely to stay. Continue engagement strategy."
+        if result == "No Churn"
+        else "Customer has a high churn risk. Offer retention incentives."
+    )
+
+    response_time = round((time.time() - start_time) * 1000, 2)
+
     return {
-        "prediction": result
-    }
+
+    "prediction": result,
+
+    "confidence": confidence,
+
+    "risk": "HIGH" if prediction == 1 else "LOW",
+
+    "recommendation":
+        "Customer has a high churn risk. Offer retention incentives."
+        if prediction == 1
+        else
+        "Customer is likely to stay. Continue engagement strategy.",
+
+    "model": "Logistic Regression",
+
+    "response_time": f"{response_time} ms"
+
+}
