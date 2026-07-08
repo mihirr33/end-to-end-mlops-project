@@ -1,15 +1,20 @@
 import time
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from prometheus_client import Counter, generate_latest
 from pydantic import BaseModel
+
 from src.pipeline.prediction_pipeline import PredictionPipeline
 
 app = FastAPI(
     title="Customer Churn Prediction API",
     version="1.0"
 )
+
+# -----------------------------
+# CORS
+# -----------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -21,14 +26,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# -----------------------------
 # Prometheus Counter
+# -----------------------------
 REQUEST_COUNT = Counter(
     "request_count",
     "Total API Requests"
 )
 
-
+# -----------------------------
 # Input Schema
+# -----------------------------
 class ChurnInput(BaseModel):
     gender: str
     SeniorCitizen: int
@@ -51,6 +59,9 @@ class ChurnInput(BaseModel):
     TotalCharges: float
 
 
+# -----------------------------
+# Home
+# -----------------------------
 @app.get("/")
 def home():
     REQUEST_COUNT.inc()
@@ -59,6 +70,9 @@ def home():
     }
 
 
+# -----------------------------
+# Health
+# -----------------------------
 @app.get("/health")
 def health():
     return {
@@ -67,6 +81,9 @@ def health():
     }
 
 
+# -----------------------------
+# Metrics
+# -----------------------------
 @app.get("/metrics")
 def metrics():
     return Response(
@@ -75,54 +92,56 @@ def metrics():
     )
 
 
+# -----------------------------
+# Prediction
+# -----------------------------
 @app.post("/predict")
 def predict(data: ChurnInput):
 
-    REQUEST_COUNT.inc()
+    try:
 
-    start_time = time.time()
+        REQUEST_COUNT.inc()
 
-    pipeline = PredictionPipeline()
+        start_time = time.time()
 
-    result_data = pipeline.predict(data.model_dump())
+        pipeline = PredictionPipeline()
 
-    prediction = result_data["prediction"]
+        result = pipeline.predict(data.model_dump())
 
-    confidence = result_data["confidence"]
+        # Convert numeric prediction to text
+        result["prediction"] = (
+            "Churn"
+            if result["prediction"] == 1
+            else "No Churn"
+        )
 
-    result = "Churn" if prediction == 1 else "No Churn"
+        # Extra information
+        result["risk"] = (
+            "High"
+            if result["prediction"] == "Churn"
+            else "Low"
+        )
 
-    # Dummy confidence (next step me model probability use karenge)
-    confidence = 94.73 if result == "No Churn" else 87.42
+        result["recommendation"] = (
+            "Offer retention plan immediately."
+            if result["prediction"] == "Churn"
+            else "Customer likely to stay."
+        )
 
-    # Risk Level
-    risk = "LOW" if result == "No Churn" else "HIGH"
+        result["model"] = "Logistic Regression"
 
-    # Recommendation
-    recommendation = (
-        "Customer is likely to stay. Continue engagement strategy."
-        if result == "No Churn"
-        else "Customer has a high churn risk. Offer retention incentives."
-    )
+        result["response_time"] = (
+            f"{round((time.time() - start_time) * 1000, 2)} ms"
+        )
 
-    response_time = round((time.time() - start_time) * 1000, 2)
+        return result
 
-    return {
+    except Exception as e:
 
-    "prediction": result,
+        import traceback
 
-    "confidence": confidence,
+        traceback.print_exc()
 
-    "risk": "HIGH" if prediction == 1 else "LOW",
-
-    "recommendation":
-        "Customer has a high churn risk. Offer retention incentives."
-        if prediction == 1
-        else
-        "Customer is likely to stay. Continue engagement strategy.",
-
-    "model": "Logistic Regression",
-
-    "response_time": f"{response_time} ms"
-
-}
+        return {
+            "error": str(e)
+        }

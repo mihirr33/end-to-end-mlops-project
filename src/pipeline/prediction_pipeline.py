@@ -26,33 +26,35 @@ class PredictionPipeline:
         self.model = joblib.load(model_path)
         self.feature_names = joblib.load(feature_path)
 
-def predict(self, data: dict):
+    # -----------------------------
+    # Prediction
+    # -----------------------------
+    def predict(self, data: dict):
 
-    df = pd.DataFrame([data])
+        df = pd.DataFrame([data])
 
-    # One-hot encoding
-    df = pd.get_dummies(df)
+        # One Hot Encoding
+        df = pd.get_dummies(df)
 
-    # Add missing columns
-    for col in self.feature_names:
-        if col not in df.columns:
-            df[col] = 0
+        # Missing columns
+        for col in self.feature_names:
+            if col not in df.columns:
+                df[col] = 0
 
-    # Correct column order
-    df = df[self.feature_names]
+        # Correct order
+        df = df[self.feature_names]
 
-    prediction = self.model.predict(df)[0]
+        prediction = self.model.predict(df)[0]
 
-    # Probability (if supported)
-    confidence = None
+        confidence = None
 
-    if hasattr(self.model, "predict_proba"):
+        if hasattr(self.model, "predict_proba"):
 
-        probability = self.model.predict_proba(df)[0]
+            probability = self.model.predict_proba(df)[0]
 
-        confidence = round(max(probability) * 100, 2)
+            confidence = round(max(probability) * 100, 2)
 
-    return {
-        "prediction": int(prediction),
-        "confidence": confidence
-    }
+        return {
+            "prediction": int(prediction),
+            "confidence": confidence
+        }
