@@ -11,4 +11,30 @@ mlruns/
 
 .ipynb_checkpoints/
 
-.DS_Store   
+.DS_Store
+
+# Docker archives
+*.tar
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+logs/
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Artifacts
+artifacts/
+
+# Models
+models/
+
+# Node
+node_modules/
+
+# Environment
+.env

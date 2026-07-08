@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: churn-frontend
+  namespace: churn-app
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: churn-frontend
+
+  template:
+    metadata:
+      labels:
+        app: churn-frontend
+
+    spec:
+      containers:
+        - name: churn-frontend
+          image: shre51/churn-frontend:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 5173

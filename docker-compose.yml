@@ -1,18 +1,59 @@
 version: "3.9"
 
 services:
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: churn-backend
+
+    ports:
+      - "8000:8000"
+
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: churn-frontend
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - backend
+
+    restart: always
+
   prometheus:
     image: prom/prometheus:latest
+
     container_name: prometheus
+
     ports:
       - "9090:9090"
+
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
 
+    depends_on:
+      - backend
+
+    restart: always
+
   grafana:
     image: grafana/grafana-oss:latest
+
     container_name: grafana
+
     ports:
       - "3000:3000"
+
     depends_on:
       - prometheus
+
+    restart: always
