@@ -2,8 +2,15 @@ import time
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
-from prometheus_client import Counter, generate_latest
 from pydantic import BaseModel
+
+from prometheus_client import (
+    Counter,
+    Gauge,
+    Histogram,
+    Info,
+    generate_latest,
+)
 
 from src.pipeline.prediction_pipeline import PredictionPipeline
 
@@ -25,15 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# -----------------------------
-# Prometheus Counter
-# -----------------------------
-REQUEST_COUNT = Counter(
-    "request_count",
-    "Total API Requests"
-)
-
 # -----------------------------
 # Input Schema
 # -----------------------------
@@ -65,21 +63,26 @@ class ChurnInput(BaseModel):
 @app.get("/")
 def home():
     REQUEST_COUNT.inc()
-    return {
-        "message": "Welcome to Ryvonexa AI Enterprise Customer Intelligence Platform"
-    }
 
+    return {
+        "application": "Ryvonexa AI",
+        "platform": "Enterprise Customer Intelligence Platform",
+        "version": "1.0",
+        "status": "Running"
+    }
 
 # -----------------------------
 # Health
 # -----------------------------
 @app.get("/health")
 def health():
+
     return {
         "status": "healthy",
-        "model": "loaded"
+        "application": "Ryvonexa AI",
+        "model": "Logistic Regression",
+        "version": "1.0"
     }
-
 
 # -----------------------------
 # Metrics
@@ -91,6 +94,66 @@ def metrics():
         media_type="text/plain"
     )
 
+# Model Information
+MODEL_INFO = Info(
+    "model_version",
+    "Model Information"
+)
+
+MODEL_INFO.info(
+    {
+        "model": "Logistic Regression",
+        "version": "1.0",
+        "company": "Ryvonexa AI"
+    }
+)
+
+
+# ==========================================================
+# Prometheus Metrics
+# ==========================================================
+
+# API Requests
+REQUEST_COUNT = Counter(
+    "request_count_total",
+    "Total API Requests"
+)
+
+# Total Predictions
+PREDICTION_COUNT = Counter(
+    "prediction_total",
+    "Total Predictions"
+)
+
+# Successful Predictions
+PREDICTION_SUCCESS = Counter(
+    "prediction_success_total",
+    "Successful Predictions"
+)
+
+# Failed Predictions
+PREDICTION_FAILED = Counter(
+    "prediction_failed_total",
+    "Failed Predictions"
+)
+
+# Active Requests
+ACTIVE_REQUESTS = Gauge(
+    "active_requests",
+    "Currently Active Requests"
+)
+
+# API Response Time
+API_RESPONSE_TIME = Histogram(
+    "api_response_time_seconds",
+    "API Response Time"
+)
+
+# Prediction Latency
+PREDICTION_LATENCY = Histogram(
+    "prediction_latency_seconds",
+    "Prediction Latency"
+)
 
 # -----------------------------
 # Prediction
@@ -98,24 +161,34 @@ def metrics():
 @app.post("/predict")
 def predict(data: ChurnInput):
 
+    ACTIVE_REQUESTS.inc()
+    REQUEST_COUNT.inc()
+
+    start_time = time.time()
+
     try:
-
-        REQUEST_COUNT.inc()
-
-        start_time = time.time()
 
         pipeline = PredictionPipeline()
 
         result = pipeline.predict(data.model_dump())
 
-        # Convert numeric prediction to text
+        # Prometheus Metrics
+        PREDICTION_COUNT.inc()
+        PREDICTION_SUCCESS.inc()
+
+        response_time = time.time() - start_time
+
+        API_RESPONSE_TIME.observe(response_time)
+        PREDICTION_LATENCY.observe(response_time)
+
+        # Convert numeric prediction
         result["prediction"] = (
             "Churn"
             if result["prediction"] == 1
             else "No Churn"
         )
 
-        # Extra information
+        # Business fields
         result["risk"] = (
             "High"
             if result["prediction"] == "Churn"
@@ -130,18 +203,18 @@ def predict(data: ChurnInput):
 
         result["model"] = "Logistic Regression"
 
-        result["response_time"] = (
-            f"{round((time.time() - start_time) * 1000, 2)} ms"
-        )
+        result["response_time"] = f"{round(response_time * 1000,2)} ms"
 
         return result
 
     except Exception as e:
 
-        import traceback
-
-        traceback.print_exc()
+        PREDICTION_FAILED.inc()
 
         return {
             "error": str(e)
         }
+
+    finally:
+
+        ACTIVE_REQUESTS.dec()

@@ -43,7 +43,7 @@
       },
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus-1"
       },
       "targets": [
         {

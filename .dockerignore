@@ -14,8 +14,6 @@ logs/
 
 artifacts/
 
-models/
-
 data/
 
 .env

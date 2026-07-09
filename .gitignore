@@ -3,7 +3,7 @@ venv/
 __pycache__/
 *.pyc
 
-models/
+# models/
 mlruns/
 /node_modules
 
@@ -29,9 +29,6 @@ mlflow.db
 
 # Artifacts
 artifacts/
-
-# Models
-models/
 
 # Node
 node_modules/
