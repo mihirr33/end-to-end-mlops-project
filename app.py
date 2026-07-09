@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from src.pipeline.prediction_pipeline import PredictionPipeline
 
 app = FastAPI(
-    title="Customer Churn Prediction API",
+    title="Ryvonexa AI API",
     version="1.0"
 )
 
@@ -66,7 +66,7 @@ class ChurnInput(BaseModel):
 def home():
     REQUEST_COUNT.inc()
     return {
-        "message": "Welcome to Telco Customer Churn Prediction API"
+        "message": "Welcome to Ryvonexa AI Enterprise Customer Intelligence Platform"
     }
 
 

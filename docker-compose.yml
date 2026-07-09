@@ -46,14 +46,15 @@ services:
     restart: always
 
   grafana:
-    image: grafana/grafana-oss:latest
+   image: grafana/grafana-oss:latest
+   container_name: grafana
 
-    container_name: grafana
+   ports:
+    - "3001:3000"
 
-    ports:
-      - "3000:3000"
+   depends_on:
+    - prometheus
 
-    depends_on:
-      - prometheus
-
-    restart: always
+   volumes:
+    - ./grafana/provisioning:/etc/grafana/provisioning
+    - ./grafana/dashboards:/var/lib/grafana/dashboards
