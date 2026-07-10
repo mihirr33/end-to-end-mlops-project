@@ -1,8 +1,8 @@
 from uuid import uuid4
 from datetime import datetime, timezone
-
+from src.components.model_monitoring import ModelMonitoring
 from openlineage.client import OpenLineageClient
-from openlineage.client.run import (
+from openlineage.client.run import(
     Run,
     Job,
     InputDataset,
@@ -25,9 +25,11 @@ class TrainingPipeline:
 
         logger.info("========== Training Pipeline Started ==========")
 
-        client = OpenLineageClient(
-            url="http://localhost:5000"
-        )
+        # ----------------------------------
+        # OpenLineage Setup (Optional)
+        # ----------------------------------
+
+        client = None
 
         run = Run(
             runId=str(uuid4())
@@ -52,51 +54,104 @@ class TrainingPipeline:
             )
         ]
 
-        # START EVENT
-        client.emit(
-            RunEvent(
-                eventType=RunState.START,
-                eventTime=datetime.now(timezone.utc).isoformat(),
-                producer="https://github.com/mihirr00051/end-to-end-mlops-assignment",
-                run=run,
-                job=job,
-                inputs=inputs,
-                outputs=outputs,
-            )
-        )
+        try:
 
+            client = OpenLineageClient(
+                url="http://localhost:5000"
+            )
+
+            client.emit(
+                RunEvent(
+                    eventType=RunState.START,
+                    eventTime=datetime.now(timezone.utc).isoformat(),
+                    producer="https://github.com/mihirr33/end-to-end-mlops-project",
+                    run=run,
+                    job=job,
+                    inputs=inputs,
+                    outputs=outputs,
+                )
+            )
+
+            logger.info("OpenLineage START event sent.")
+
+        except Exception as e:
+
+            logger.warning(
+                f"OpenLineage unavailable. Skipping START event. {e}"
+            )
+
+        # ----------------------------------
         # Data Ingestion
+        # ----------------------------------
+
         ingestion = DataIngestion()
         ingestion.initiate_data_ingestion()
 
+        # ----------------------------------
         # Data Validation
+        # ----------------------------------
+
         validation = DataValidation()
         validation.validate_data()
 
+        # ----------------------------------
         # Data Transformation
+        # ----------------------------------
+
         transformation = DataTransformation()
         transformation.initiate_data_transformation()
 
+        # ----------------------------------
         # Model Training
+        # ----------------------------------
+
         trainer = ModelTrainer()
         trainer.initiate_model_training()
 
-        # COMPLETE EVENT
-        client.emit(
-            RunEvent(
-                eventType=RunState.COMPLETE,
-                eventTime=datetime.now(timezone.utc).isoformat(),
-                producer="https://github.com/mihirr00051/end-to-end-mlops-assignment",
-                run=run,
-                job=job,
-                inputs=inputs,
-                outputs=outputs,
-            )
-        )
+        monitor = ModelMonitoring()
+        monitor.generate_reports()
+
+        # ----------------------------------
+        # Evidently Monitoring
+        # ----------------------------------
+
+        monitor = ModelMonitoring()
+
+        monitor.generate_reports()
+
+        # ----------------------------------
+        # OpenLineage COMPLETE
+        # ----------------------------------
+
+        if client is not None:
+
+            try:
+
+                client.emit(
+                    RunEvent(
+                        eventType=RunState.COMPLETE,
+                        eventTime=datetime.now(timezone.utc).isoformat(),
+                        producer="https://github.com/mihirr33/end-to-end-mlops-project",
+                        run=run,
+                        job=job,
+                        inputs=inputs,
+                        outputs=outputs,
+                    )
+                )
+
+                logger.info("OpenLineage COMPLETE event sent.")
+
+            except Exception as e:
+
+                logger.warning(
+                    f"OpenLineage unavailable. Skipping COMPLETE event. {e}"
+                )
 
         logger.info("========== Training Pipeline Completed ==========")
 
 
 if __name__ == "__main__":
+
     pipeline = TrainingPipeline()
+
     pipeline.start_pipeline()

@@ -1,12 +1,6 @@
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder
-import joblib
-
-
 import os
 import sys
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -28,6 +22,10 @@ class DataTransformation:
 
         try:
 
+            # ==============================
+            # Load Dataset
+            # ==============================
+
             file_path = os.path.join(
                 self.ingestion_config.artifact_dir,
                 self.ingestion_config.artifact_file
@@ -37,6 +35,10 @@ class DataTransformation:
 
             logger.info("Dataset Loaded Successfully")
 
+            # ==============================
+            # Data Cleaning
+            # ==============================
+
             df["TotalCharges"] = pd.to_numeric(
                 df["TotalCharges"],
                 errors="coerce"
@@ -45,19 +47,37 @@ class DataTransformation:
             df.fillna(0, inplace=True)
 
             df["Churn"] = df["Churn"].map(
-                {"Yes": 1, "No": 0}
+                {
+                    "Yes": 1,
+                    "No": 0
+                }
             )
 
-            X = df.drop(columns=["customerID", "Churn"])
+            # ==============================
+            # Features / Target
+            # ==============================
+
+            X = df.drop(
+                columns=[
+                    "customerID",
+                    "Churn"
+                ]
+            )
+
             y = df["Churn"]
-            # Separate numerical and categorical columns
-            numerical_columns = X.select_dtypes(exclude="object").columns
 
-            categorical_columns = X.select_dtypes(include="object").columns
+            # ==============================
+            # One Hot Encoding
+            # ==============================
 
-            
+            X = pd.get_dummies(
+                X,
+                drop_first=True
+            )
 
-            X = pd.get_dummies(X, drop_first=True)
+            # ==============================
+            # Train Test Split
+            # ==============================
 
             X_train, X_test, y_train, y_test = train_test_split(
                 X,
@@ -66,10 +86,61 @@ class DataTransformation:
                 random_state=self.training_config.random_state
             )
 
-            print("Train Shape :", X_train.shape)
-            print("Test Shape :", X_test.shape)
+            # ==============================
+            # Save Artifacts
+            # ==============================
 
-            logger.info("Data Transformation Completed")
+            artifact_dir = self.ingestion_config.artifact_dir
+
+            os.makedirs(
+                artifact_dir,
+                exist_ok=True
+            )
+
+            train_df = X_train.copy()
+            train_df["Churn"] = y_train.values
+
+            test_df = X_test.copy()
+            test_df["Churn"] = y_test.values
+
+            train_df.to_csv(
+                os.path.join(artifact_dir, "train.csv"),
+                index=False
+            )
+
+            test_df.to_csv(
+                os.path.join(artifact_dir, "test.csv"),
+                index=False
+            )
+
+            X_train.to_csv(
+                os.path.join(artifact_dir, "X_train.csv"),
+                index=False
+            )
+
+            X_test.to_csv(
+                os.path.join(artifact_dir, "X_test.csv"),
+                index=False
+            )
+
+            y_train.to_frame().to_csv(
+                os.path.join(artifact_dir, "y_train.csv"),
+                index=False
+            )
+
+            y_test.to_frame().to_csv(
+                os.path.join(artifact_dir, "y_test.csv"),
+                index=False
+            )
+
+            logger.info("Artifacts Saved Successfully")
+
+            print("\n==============================")
+            print("Data Transformation Completed")
+            print("==============================")
+            print(f"Train Shape : {X_train.shape}")
+            print(f"Test Shape  : {X_test.shape}")
+            print("==============================")
 
             return X_train, X_test, y_train, y_test
 
