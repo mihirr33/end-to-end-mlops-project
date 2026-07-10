@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: churn-backend
+  namespace: churn-app
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: churn-backend
+
+  template:
+    metadata:
+      labels:
+        app: churn-backend
+
+    spec:
+      containers:
+
+      - name: backend
+
+        image: end-to-end-mlops-project-backend:latest
+
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 8000
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+
+          initialDelaySeconds: 20
+          periodSeconds: 20

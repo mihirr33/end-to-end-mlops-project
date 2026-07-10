@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: churn-frontend
+  namespace: churn-app
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: churn-frontend
+
+  template:
+    metadata:
+      labels:
+        app: churn-frontend
+
+    spec:
+      containers:
+
+      - name: frontend
+
+        image: end-to-end-mlops-project-frontend:latest
+
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 5173
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
