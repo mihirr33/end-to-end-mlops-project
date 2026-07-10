@@ -9,10 +9,10 @@ stages:
       size: 977501
     - path: src/pipeline/training_pipeline.py
       hash: md5
-      md5: 59874e2cc7d375f4675f5ec0ee057cc2
-      size: 999
+      md5: 8292bc7120c9692ca9fe9c2023feab42
+      size: 4319
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: a3f6c705b6d4322759a0a1edc68f7ab1
+      md5: 2c68c7d7ee9e9996df10260d59e213c6
       size: 2079
