@@ -646,7 +646,9 @@ https://github.com/mihirr33
 
 LinkedIn:
 
-(Add your LinkedIn profile)
+www.linkedin.com/in/mihirr51
+
+
 
 ---
 
