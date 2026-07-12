@@ -30,13 +30,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Data Ingestion Test
-        run: python tests/test_data_ingestion.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          run: python -m tests.test_data_ingestion
 
       - name: Run Data Validation Test
-        run: python tests/test_data_validation.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          run: python -m tests.test_data_validation
 
       - name: Run Data Transformation Test
-        run: python tests/test_data_transformation.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          run: python -m tests.test_data_transformation
 
       - name: Run Model Trainer Test
-        run: python tests/test_model_trainer.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          run: python -m tests.test_model_trainer
