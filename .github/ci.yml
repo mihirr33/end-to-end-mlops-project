@@ -30,13 +30,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Data Ingestion Test
-        run: python test_data_ingestion.py
+        run: python tests/test_data_ingestion.py
 
       - name: Run Data Validation Test
-        run: python test_data_validation.py
+        run: python tests/test_data_validation.py
 
       - name: Run Data Transformation Test
-        run: python test_data_transformation.py
+        run: python tests/test_data_transformation.py
 
       - name: Run Model Trainer Test
-        run: python test_model_trainer.py
+        run: python tests/test_model_trainer.py

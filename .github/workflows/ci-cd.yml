@@ -31,9 +31,9 @@ jobs:
 
       - name: Run Python Tests
         run: |
-          python test_configuration.py
-          python test_logger.py
-          python test_exception.py
+          python tests/test_configuration.py
+          python tests/test_logger.py
+          python tests/test_exception.py
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
