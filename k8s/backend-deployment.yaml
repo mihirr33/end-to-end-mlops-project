@@ -22,9 +22,9 @@ spec:
 
       - name: backend
 
-        image: end-to-end-mlops-project-backend:latest
+        image: shre51/churn-backend:latest
 
-        imagePullPolicy: Never
+        imagePullPolicy: Always
 
         ports:
         - containerPort: 8000

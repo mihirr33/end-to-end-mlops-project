@@ -22,9 +22,9 @@ spec:
 
       - name: frontend
 
-        image: end-to-end-mlops-project-frontend:latest
+        image: shre51/churn-frontend:latest
 
-        imagePullPolicy: Never
+        imagePullPolicy: Always
 
         ports:
         - containerPort: 5173
